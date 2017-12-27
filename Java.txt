@@ -1,1 +1,205 @@
-la fichier bean principal
+// package com.crm.domain;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
+import java.io.Serializable;
+import java.time.ZonedDateTime;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
+import javax.persistence.*;
+
+@Entity
+public class User implements Serializable {
+
+
+	/**
+	 *
+	 */
+	private static final long serialVersionUID = 1L;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private	Long idUser;
+	private String firstName;
+	private String lastName;
+	private String username;
+	private String password;
+	private String email;
+	private String tel;
+	private boolean activated = false;
+	private String langKey;
+	public String activationKey;
+	public String resetKey;
+	private boolean blocked;
+	private ZonedDateTime resetDate;
+
+	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(
+			name = "user_authority",
+			joinColumns = @JoinColumn(name = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "authority_id")
+				)
+	private Collection<Authority> authorities ;
+
+///////////////////////////////////////////////
+@JsonIgnore
+@ManyToMany(mappedBy = "users")
+  private Set<Campaign> campaigns=new HashSet<>();
+//////////
+
+	@ManyToOne
+	@JoinColumn(name = "group_id")
+	private GroupUser group;
+
+	@JsonIgnore
+	@OneToMany(mappedBy = "user")
+	private Set<Complaint> complaints = new HashSet<>();
+
+	public User() {
+
+
+	}
+
+	public Long getIdUser() {
+		return idUser;
+	}
+
+	public void setIdUser(Long idUser) {
+		this.idUser = idUser;
+	}
+	public String getFirstName() {
+		return firstName;
+	}
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+	public String getLastName() {
+		return lastName;
+	}
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getPassword() {
+		return password;
+	}
+	public void setPassword(String password) {
+		this.password = password;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getTel() {
+		return tel;
+	}
+	public void setTel(String tel) {
+		this.tel = tel;
+	}
+	public boolean isActivated() {
+		return activated;
+	}
+	public void setActivated(boolean activated) {
+		this.activated = activated;
+	}
+	public String getLangKey() {
+		return langKey;
+	}
+	public void setLangKey(String langKey) {
+		this.langKey = langKey;
+	}
+	public String getActivationKey() {
+		return activationKey;
+	}
+	public void setActivationKey(String activationKey) {
+		this.activationKey = activationKey;
+	}
+	public String getResetKey() {
+		return resetKey;
+	}
+	public void setResetKey(String resetKey) {
+		this.resetKey = resetKey;
+	}
+	public boolean isBlocked() {
+		return blocked;
+	}
+	public void setBlocked(boolean blocked) {
+		this.blocked = blocked;
+	}
+
+	public Collection<Authority> getAuthorities() {
+		return authorities;
+	}
+
+	public void setAuthorities(Collection<Authority> authorities) {
+		this.authorities = authorities;
+	}
+
+	public ZonedDateTime getResetDate() {
+		return resetDate;
+	}
+
+	public GroupUser getGroup() {
+		return group;
+	}
+
+	public void setGroup(GroupUser group) {
+		this.group = group;
+	}
+
+	public void setResetDate(ZonedDateTime resetDate) {
+		this.resetDate = resetDate;
+	}
+
+	public Set<Complaint> getComplaints() {
+		return complaints;
+	}
+
+	public void setComplaints(Set<Complaint> complaints) {
+		this.complaints = complaints;
+	}
+
+  public static long getSerialVersionUID() {
+    return serialVersionUID;
+  }
+
+  public Set<Campaign> getCampaigns() {
+    return campaigns;
+  }
+
+  public void setCampaigns(Set<Campaign> campaigns) {
+    this.campaigns = campaigns;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+      "idUser=" + idUser +
+      ", firstName='" + firstName + '\'' +
+      ", lastName='" + lastName + '\'' +
+      ", username='" + username + '\'' +
+      ", password='" + password + '\'' +
+      ", email='" + email + '\'' +
+      ", tel='" + tel + '\'' +
+      ", activated=" + activated +
+      ", langKey='" + langKey + '\'' +
+      ", activationKey='" + activationKey + '\'' +
+      ", resetKey='" + resetKey + '\'' +
+      ", blocked=" + blocked +
+      ", resetDate=" + resetDate +
+      ", authorities=" + authorities +
+      ", campaigns=" + campaigns +
+      ", group=" + group +
+      ", complaints=" + complaints +
+      '}';
+  }
+}
+
