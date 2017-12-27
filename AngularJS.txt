@@ -1,1 +1,183 @@
-Angular JS file exemple
+'use strict';
+
+angular.module('CrmApp')
+  .config(function($stateProvider){
+
+    $stateProvider.state('user',{
+      parent : 'admin',
+      url : '/users',
+     views : {
+       '@' : {templateUrl : 'scripts/app/admin/user-management/users.html',
+      controller : 'UserController'}},
+      data : {
+        pageTitle : 'Users'
+      },
+      resolve: {
+
+        translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+          $translatePartialLoader.addPart('user.management');
+          $translatePartialLoader.addPart('global');
+          return $translate.refresh();
+        }],
+        deps: ['$ocLazyLoad', function($ocLazyLoad) {
+          return $ocLazyLoad.load({
+            name: 'CrmApp',
+            insertBefore: '#ng_load_plugins_before', // load the above css files before '#ng_load_plugins_before'
+            files: [
+
+              'assets/global/plugins/datatables/datatables.min.css',
+              'assets/global/plugins/datatables/plugins/bootstrap/datatables.bootstrap.css',
+
+              'assets/global/plugins/datatables/datatables.all.min.js',
+
+              'assets/pages/scripts/table-datatables-managed.min.js',
+              'assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css',
+              'assets/global/plugins/select2/css/select2.min.css',
+              'assets/global/plugins/select2/css/select2-bootstrap.min.css',
+
+              'assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js',
+              'assets/global/plugins/select2/js/select2.full.min.js',
+
+              'assets/pages/scripts/components-bootstrap-select.min.js',
+              'assets/pages/scripts/components-select2.min.js'
+
+
+            ]
+          });
+        }]
+      }
+
+    })
+      .state('user.detail', {
+        parent: 'admin',
+        url: '/user/:username',
+        data: {
+          authorities: ['ROLE_ADMIN'],
+          pageTitle: 'user-management.detail.title'
+        },
+        views: {
+          '@': {
+            templateUrl: 'scripts/app/admin/user-management/user-detail.html',
+            controller: 'UserDetailController'
+          }
+        },
+        resolve: {
+          translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+            $translatePartialLoader.addPart('user.management');
+            return $translate.refresh();
+          }]
+        }
+      })
+      .state('user.new', {
+        parent : 'admin',
+        url : '/add_user',
+        data : {
+          authorities : ['ROLE_ADMIN'],
+          pageTitle: 'user-management.detail.title'
+        },
+        views : {
+          '@' : {
+            templateUrl : 'scripts/app/admin/user-management/user-new.html',
+            controller : 'UserNewController'
+          }
+        },
+        resolve: {
+          translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+            $translatePartialLoader.addPart('user.management');
+            return $translate.refresh();
+          }],
+          deps: ['$ocLazyLoad', function($ocLazyLoad) {
+            return $ocLazyLoad.load([{
+              name: 'CrmApp',
+              insertBefore: '#ng_load_plugins_before', // load the above css files before '#ng_load_plugins_before'
+              files: [
+                'assets/global/plugins/bootstrap-select/css/bootstrap-select.min.css',
+                'assets/global/plugins/select2/css/select2.min.css',
+                'assets/global/plugins/select2/css/select2-bootstrap.min.css',
+
+                'assets/global/plugins/bootstrap-select/js/bootstrap-select.min.js',
+                'assets/global/plugins/select2/js/select2.full.min.js',
+
+                'assets/pages/scripts/components-bootstrap-select.min.js',
+                'assets/pages/scripts/components-select2.min.js'
+
+
+              ]
+            }]);
+          }],
+          entity: function () {
+            return {
+              idUser : null,
+              username: null,
+              firstname: null,
+              lastname: null,
+              email : null,
+              tel : null,
+              authorities : [],
+              group : null
+            };
+          }
+        }
+
+      })
+      .state('user.edit', {
+        parent: 'admin',
+        url : '/editUser/{username}',
+
+        views :{
+          '@' : {
+            templateUrl : 'scripts/app/admin/user-management/user-new.html',
+            controller : 'UserEditController'
+          }
+        },
+
+        data : 'CrmApp.profile.detail.title',
+        resolve: {
+          translatePartialLoader: ['$translate', '$translatePartialLoader', function ($translate, $translatePartialLoader) {
+            $translatePartialLoader.addPart('user.management');
+            return $translate.refresh();
+          }]
+
+        }
+
+      })
+      .state('user.delete', {
+      parent: 'user',
+      url: '/{username}/delete',
+      data: {
+        authorities: ['ROLE_ADMIN'],
+      },
+      onEnter: ['$stateParams', '$state', '$uibModal', function($stateParams, $state, $uibModal) {
+        $uibModal.open({
+          templateUrl: 'scripts/app/admin/user-management/user-delete-dialog.html',
+          controller: 'userDeleteController',
+          size: 'md',
+          resolve: {
+            entity: ['User', function(User) {
+              return User.get({username : $stateParams.username});
+            }]
+          }
+        }).result.then(function(result) {
+          $state.go('user', null, { reload: true });
+        }, function() {
+          $state.go('^');
+        })
+      }]
+    })
+      .state('user.import', {
+        parent : 'user',
+        url : '/users-import',
+        data : 'CrmApp.profile.detail.title',
+        onEnter: ['$state', '$uibModal', function($state, $uibModal) {
+          $uibModal.open({
+            templateUrl: 'scripts/app/admin/user-management/user-import-dialog.html',
+            controller: 'UserImportController',
+            size: 'md'
+          }).result.then(function(result) {
+            $state.go('user', null, { reload: true });
+          }, function() {
+            $state.go('user');
+          })
+        }]
+      });
+  });
